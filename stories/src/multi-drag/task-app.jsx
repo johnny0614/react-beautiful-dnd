@@ -17,9 +17,9 @@ const Container = styled.div`
 
 type State = {|
   entities: Entities,
-  selectedTaskIds: Id[],
-  // sad times
-  draggingTaskId: ?Id,
+    selectedTaskIds: Id[],
+      // sad times
+      draggingTaskId: ?Id,
 |};
 
 const getTasks = (entities: Entities, columnId: Id): Task[] =>
@@ -183,29 +183,54 @@ export default class TaskApp extends Component<*, State> {
     });
   };
 
+  addColumn = () => {
+    console.log(this.state.entities);
+    const {columns, columnOrder} = this.state.entities;
+    const newId: string = `newColumn ${columnOrder.length+1}`;
+    const entities = {
+      columns: {
+        [newId]: {
+          id: newId,
+          title: newId,
+          taskIds: []
+        },
+        ...columns
+      },
+      columnOrder: [...columnOrder, newId],
+      tasks: this.state.entities.tasks
+    }
+
+    this.setState({
+      entities
+    });
+  }
+
   render() {
     const entities: Entities = this.state.entities;
     const selected: Id[] = this.state.selectedTaskIds;
     return (
-      <DragDropContext
-        onDragStart={this.onDragStart}
-        onDragEnd={this.onDragEnd}
-      >
-        <Container>
-          {entities.columnOrder.map((columnId: Id) => (
-            <Column
-              column={entities.columns[columnId]}
-              tasks={getTasks(entities, columnId)}
-              selectedTaskIds={selected}
-              key={columnId}
-              draggingTaskId={this.state.draggingTaskId}
-              toggleSelection={this.toggleSelection}
-              toggleSelectionInGroup={this.toggleSelectionInGroup}
-              multiSelectTo={this.multiSelectTo}
-            />
-          ))}
-        </Container>
-      </DragDropContext>
+      <>
+        <button onClick={this.addColumn}>add a new column</button>
+        <DragDropContext
+          onDragStart={this.onDragStart}
+          onDragEnd={this.onDragEnd}
+        >
+          <Container>
+            {entities.columnOrder.map((columnId: Id) => (
+              <Column
+                column={entities.columns[columnId]}
+                tasks={getTasks(entities, columnId)}
+                selectedTaskIds={selected}
+                key={columnId}
+                draggingTaskId={this.state.draggingTaskId}
+                toggleSelection={this.toggleSelection}
+                toggleSelectionInGroup={this.toggleSelectionInGroup}
+                multiSelectTo={this.multiSelectTo}
+              />
+            ))}
+          </Container>
+        </DragDropContext>
+      </>
     );
   }
 }
